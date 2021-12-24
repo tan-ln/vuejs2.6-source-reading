@@ -248,11 +248,14 @@ export function set (target: Array<any> | Object, key: any, val: any): any {
     )
     return val
   }
+  // 如果不是响应式数据，set 可以生效，但不具备响应式能力
   if (!ob) {
     target[key] = val
     return val
   }
+  // getter/setter 读取时收集依赖，更新时触发依赖通知更新
   defineReactive(ob.value, key, val)
+  // 依赖通知更新
   ob.dep.notify()
   return val
 }
@@ -266,6 +269,7 @@ export function del (target: Array<any> | Object, key: any) {
   ) {
     warn(`Cannot delete reactive property on undefined, null, or primitive value: ${(target)}`)
   }
+  // 数组利用 splice 删除
   if (Array.isArray(target) && isValidArrayIndex(key)) {
     target.splice(key, 1)
     return
@@ -278,6 +282,7 @@ export function del (target: Array<any> | Object, key: any) {
     )
     return
   }
+  // 删除对象上的属性 delete 操作符
   if (!hasOwn(target, key)) {
     return
   }
@@ -285,6 +290,7 @@ export function del (target: Array<any> | Object, key: any) {
   if (!ob) {
     return
   }
+  // 触发依赖通知更新
   ob.dep.notify()
 }
 

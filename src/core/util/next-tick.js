@@ -100,6 +100,7 @@ if (typeof Promise !== 'undefined' && isNative(Promise)) {
   }
 }
 
+// Vue.nextTick(function () {})
 export function nextTick (cb?: Function, ctx?: Object) {
   let _resolve
   // 将传入的 callback 用 try catch 包一层，便于异常捕获
