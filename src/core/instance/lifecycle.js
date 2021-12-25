@@ -56,6 +56,8 @@ export function initLifecycle (vm: Component) {
 }
 
 export function lifecycleMixin (Vue: Class<Component>) {
+
+  // 组件初次渲染和更新的入口
   Vue.prototype._update = function (vnode: VNode, hydrating?: boolean) {
     const vm: Component = this
     const prevEl = vm.$el
@@ -66,9 +68,11 @@ export function lifecycleMixin (Vue: Class<Component>) {
     // based on the rendering backend used.
     if (!prevVnode) {
       // initial render
+      // patch 阶段 、diff 算法
       vm.$el = vm.__patch__(vm.$el, vnode, hydrating, false /* removeOnly */)
     } else {
       // updates
+      // 新、老节点 diff 算法，并更新
       vm.$el = vm.__patch__(prevVnode, vnode)
     }
     restoreActiveInstance()
@@ -99,14 +103,16 @@ export function lifecycleMixin (Vue: Class<Component>) {
     if (vm._isBeingDestroyed) {
       return
     }
+    // 生命周期 beforeDestroy
     callHook(vm, 'beforeDestroy')
     vm._isBeingDestroyed = true
     // remove self from parent
+    // 从父组件的 children 属性中移除
     const parent = vm.$parent
     if (parent && !parent._isBeingDestroyed && !vm.$options.abstract) {
       remove(parent.$children, vm)
     }
-    // teardown watchers
+    // teardown watchers 从 watcher 移除
     if (vm._watcher) {
       vm._watcher.teardown()
     }
@@ -123,6 +129,7 @@ export function lifecycleMixin (Vue: Class<Component>) {
     vm._isDestroyed = true
     // invoke destroy hooks on current rendered tree
     vm.__patch__(vm._vnode, null)
+    // 生命周期 destroyed
     // fire destroyed hook
     callHook(vm, 'destroyed')
     // turn off all instance listeners.

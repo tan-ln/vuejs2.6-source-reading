@@ -16,6 +16,7 @@ export function installRenderHelpers (target: any) {
   target._o = markOnce
   target._n = toNumber
   target._s = toString
+  // v-for
   target._l = renderList
   target._t = renderSlot
   target._q = looseEqual
