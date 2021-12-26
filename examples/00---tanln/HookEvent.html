@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hook Event</title>
+</head>
+<body>
+  <div id="app">
+    <comp @hook:mounted="handleHookEvent" />
+  </div>
+  <script src="../../dist/vue.min.js"></script>
+  <script>
+    // 需求：
+    //    在接口请求时，请求时间过长，用 loading 替代 白屏
+    //    1. 改 comp 组件源码（不建议）
+    //    2. Hook Event 从组件外为组件注入额外的生命周期钩子逻辑
+    Vue.component('comp', {
+      template: `
+        <ul>
+          <li v-for="item in arr" :key="JSON.stringify(item)">{{ item }}</li>
+        </ul>
+      `,
+      data() {
+        return {
+          arr: []
+        }
+      },
+      async mounted() {
+        console.log('comp mounted')
+        // 模拟接口
+        this.arr = await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve([1, 2, 3, 4, 5])
+          }, 4000)
+        })
+      }
+    })
+    const vm = new Vue({
+      el: '#app',
+      methods: {
+        handleHookEvent() {
+          console.log('loading ...')
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>

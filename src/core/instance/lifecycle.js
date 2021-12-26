@@ -342,16 +342,22 @@ export function deactivateChildComponent (vm: Component, direct?: boolean) {
 }
 
 export function callHook (vm: Component, hook: string) {
+  // 打开依赖收集
   // #7573 disable dep collection when invoking lifecycle hooks
+  // 从组件的配置项中获取这个 mounted 生命周期钩子函数
   pushTarget()
   const handlers = vm.$options[hook]
   const info = `${hook} hook`
   if (handlers) {
     for (let i = 0, j = handlers.length; i < j; i++) {
+      // invoke 调用生命周期函数
       invokeWithErrorHandling(handlers[i], vm, null, vm, info)
     }
   }
+  // hook event
   if (vm._hasHookEvent) {
+    // emit 触发 ex: hoook event
+    // 通过执行 vm._event['hook:mounted'] 数组当中的所有处理函数
     vm.$emit('hook:' + hook)
   }
   popTarget()

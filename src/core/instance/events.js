@@ -80,6 +80,7 @@ export function eventsMixin (Vue: Class<Component>) {
       // instead of a hash lookup
 
       // <Comp @hook:mounted="handleHookMounted" />
+      // 正则 以 hook:开头的事件
       if (hookRE.test(event)) {
         // 标记为 true，表示当前组件实例存在 hookEvent
         vm._hasHookEvent = true
