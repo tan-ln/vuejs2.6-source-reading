@@ -332,3 +332,9 @@ watch: {
   - 使用场景不同，`watch` 通常用于异步操作，`computed`同步多
 
 - watch | methods 两种东西没有可比性，不过可以把 watch 中一些复杂的逻辑抽离到 methods 中，提高可读性
+
+6. is 属性
+
+
+
+7. 内联模板 `inline-template`

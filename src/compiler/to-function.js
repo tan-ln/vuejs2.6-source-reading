@@ -49,6 +49,7 @@ export function createCompileToFunctionFn (compile: Function): Function {
     }
 
     // check cache
+    // 从缓存中获取编译结果
     const key = options.delimiters
       ? String(options.delimiters) + template
       : template
@@ -57,6 +58,7 @@ export function createCompileToFunctionFn (compile: Function): Function {
     }
 
     // compile
+    // 编译结果
     const compiled = compile(template, options)
 
     // check compilation errors/tips
@@ -90,7 +92,9 @@ export function createCompileToFunctionFn (compile: Function): Function {
     // turn code into functions
     const res = {}
     const fnGenErrors = []
+    // 编译结果 是一个 code 字符串，需要转换为 函数  (new Function(code))
     res.render = createFunction(compiled.render, fnGenErrors)
+    // 静态节点的函数字符串转换成 可执行函数
     res.staticRenderFns = compiled.staticRenderFns.map(code => {
       return createFunction(code, fnGenErrors)
     })
@@ -109,6 +113,7 @@ export function createCompileToFunctionFn (compile: Function): Function {
       }
     }
 
+    // 缓存编译结果
     return (cache[key] = res)
   }
 }

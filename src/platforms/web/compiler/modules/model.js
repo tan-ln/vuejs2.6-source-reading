@@ -23,6 +23,8 @@ import {
   createASTElement
 } from 'compiler/parser/index'
 
+// 处理 包含 v-model 指令的 input 标签
+// <input v-model="xxx" />
 function preTransformNode (el: ASTElement, options: CompilerOptions) {
   if (el.tag === 'input') {
     const map = el.attrsMap
@@ -39,18 +41,26 @@ function preTransformNode (el: ASTElement, options: CompilerOptions) {
     }
 
     if (typeBinding) {
+      // 得到 指定属性( v-if )的 值，并从 attrList 中移除 指定属性
       const ifCondition = getAndRemoveAttr(el, 'v-if', true)
       const ifConditionExtra = ifCondition ? `&&(${ifCondition})` : ``
       const hasElse = getAndRemoveAttr(el, 'v-else', true) != null
       const elseIfCondition = getAndRemoveAttr(el, 'v-else-if', true)
       // 1. checkbox
+      // <input type="checkbox" />
+
       const branch0 = cloneASTElement(el)
       // process for on the main node
+      // 处理 v-for 指令
       processFor(branch0)
+      // el 对象添加 type 属性 值为 checkbox
       addRawAttr(branch0, 'type', 'checkbox')
+      // 标签的 众多属性
       processElement(branch0, options)
+      // 处理完成标记
       branch0.processed = true // prevent it from double-processed
       branch0.if = `(${typeBinding})==='checkbox'` + ifConditionExtra
+      // ifConditions = []
       addIfCondition(branch0, {
         exp: branch0.if,
         block: branch0

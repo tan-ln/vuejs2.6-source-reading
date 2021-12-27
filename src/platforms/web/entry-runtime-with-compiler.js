@@ -28,13 +28,15 @@ Vue.prototype.$mount = function (
     )
     return this
   }
-
+  // 配置项
   const options = this.$options
   // resolve template/el and convert to render function
+  // 没有配置 render
   if (!options.render) {
     let template = options.template
     if (template) {
       if (typeof template === 'string') {
+        // # 为 id 选择器，得到 innerHTML
         if (template.charAt(0) === '#') {
           template = idToTemplate(template)
           /* istanbul ignore if */
@@ -54,6 +56,8 @@ Vue.prototype.$mount = function (
         return this
       }
     } else if (el) {
+      // outerHTML 整个节点
+      // <div>innerHTML</div>
       template = getOuterHTML(el)
     }
     if (template) {
@@ -63,13 +67,17 @@ Vue.prototype.$mount = function (
       }
 
       const { render, staticRenderFns } = compileToFunctions(template, {
+        // 标记元素在 HTML 模板字符串中的开始和结束索引位置
         outputSourceRange: process.env.NODE_ENV !== 'production',
         shouldDecodeNewlines,
         shouldDecodeNewlinesForHref,
+        // 界定符 {{}}
         delimiters: options.delimiters,
+        // 编译时是否保留注释内容
         comments: options.comments
       }, this)
       options.render = render
+      // 渲染静态节点的渲染函数数组
       options.staticRenderFns = staticRenderFns
 
       /* istanbul ignore if */

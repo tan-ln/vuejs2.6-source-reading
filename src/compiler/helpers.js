@@ -82,6 +82,7 @@ export function addHandler (
   if (
     process.env.NODE_ENV !== 'production' && warn &&
     modifiers.prevent && modifiers.passive
+    // prevent 和 passive 不能同时使用
   ) {
     warn(
       'passive and prevent can\'t be used together. ' +
@@ -93,10 +94,15 @@ export function addHandler (
   // normalize click.right and click.middle since they don't actually fire
   // this is technically browser-specific, but at least for now browsers are
   // the only target envs that have right/middle clicks.
+
+  // 鼠标 中、右 键
   if (modifiers.right) {
+    // 动态属性
     if (dynamic) {
+      // 属性名为 click 时，name = contextMenu
       name = `(${name})==='click'?'contextmenu':(${name})`
     } else if (name === 'click') {
+      // 非动态
       name = 'contextmenu'
       delete modifiers.right
     }
@@ -108,9 +114,14 @@ export function addHandler (
     }
   }
 
+  // 分别处理 capture | once | passive 修饰符
+  // 在名称中加一些前缀作为 标识
+
   // check capture modifier
   if (modifiers.capture) {
     delete modifiers.capture
+    // 动态属性 _p(attrName, !)
+    // 静态属性 !attrName
     name = prependModifierMarker('!', name, dynamic)
   }
   if (modifiers.once) {
@@ -123,7 +134,9 @@ export function addHandler (
     name = prependModifierMarker('&', name, dynamic)
   }
 
+  // 事件处理
   let events
+  // .native 原生事件
   if (modifiers.native) {
     delete modifiers.native
     events = el.nativeEvents || (el.nativeEvents = {})
@@ -131,6 +144,7 @@ export function addHandler (
     events = el.events || (el.events = {})
   }
 
+  // { value, dynamic, start, end, modifiers }
   const newHandler: any = rangeSetItem({ value: value.trim(), dynamic }, range)
   if (modifiers !== emptyObject) {
     newHandler.modifiers = modifiers
@@ -180,6 +194,7 @@ export function getBindingAttr (
 // doesn't get processed by processAttrs.
 // By default it does NOT remove it from the map (attrsMap) because the map is
 // needed during codegen.
+// 从 Array (attrsList) 取得 name（指定属性）的值，并从 attrsList 数组删除
 export function getAndRemoveAttr (
   el: ASTElement,
   name: string,

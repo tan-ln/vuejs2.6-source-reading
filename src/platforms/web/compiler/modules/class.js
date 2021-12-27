@@ -7,11 +7,16 @@ import {
   baseWarn
 } from 'compiler/helpers'
 
+// 处理 静态和动态 class 属性，el.staticClass && el.classBinding
 function transformNode (el: ASTElement, options: CompilerOptions) {
   const warn = options.warn || baseWarn
+  // class 属性
   const staticClass = getAndRemoveAttr(el, 'class')
   if (process.env.NODE_ENV !== 'production' && staticClass) {
     const res = parseText(staticClass, options.delimiters)
+
+    // 界定符 {{}} 的误用 <div class="{{className}}"></div>
+    // 转化为 <div :class="{{className}}"></div>
     if (res) {
       warn(
         `class="${staticClass}": ` +
@@ -25,6 +30,7 @@ function transformNode (el: ASTElement, options: CompilerOptions) {
   if (staticClass) {
     el.staticClass = JSON.stringify(staticClass)
   }
+  // class 动态绑定 <div :class="{{className}}"></div>
   const classBinding = getBindingAttr(el, 'class', false /* getStatic */)
   if (classBinding) {
     el.classBinding = classBinding

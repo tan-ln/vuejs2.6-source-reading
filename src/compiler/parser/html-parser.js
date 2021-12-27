@@ -52,6 +52,7 @@ function decodeAttr (value, shouldDecodeNewlines) {
 }
 
 export function parseHTML (html, options) {
+  // 存放的是 标签的属性信息对象
   const stack = []
   const expectHTML = options.expectHTML
   const isUnaryTag = options.isUnaryTag || no
@@ -65,10 +66,12 @@ export function parseHTML (html, options) {
       let textEnd = html.indexOf('<')
       if (textEnd === 0) {
         // Comment:
+        // 注释标签 <!-- xx -->
         if (comment.test(html)) {
           const commentEnd = html.indexOf('-->')
 
           if (commentEnd >= 0) {
+            // 保留注释
             if (options.shouldKeepComment) {
               options.comment(html.substring(4, commentEnd), index, index + commentEnd + 3)
             }
@@ -78,6 +81,7 @@ export function parseHTML (html, options) {
         }
 
         // http://en.wikipedia.org/wiki/Conditional_comment#Downlevel-revealed_conditional_comment
+        // 条件注释
         if (conditionalComment.test(html)) {
           const conditionalEnd = html.indexOf(']>')
 
@@ -95,6 +99,7 @@ export function parseHTML (html, options) {
         }
 
         // End tag:
+        // </tag>
         const endTagMatch = html.match(endTag)
         if (endTagMatch) {
           const curIndex = index
@@ -104,6 +109,8 @@ export function parseHTML (html, options) {
         }
 
         // Start tag:
+        // 开始标签 <tag>
+        // 返回结果 { tagName, attrs: [], start: index }
         const startTagMatch = parseStartTag()
         if (startTagMatch) {
           handleStartTag(startTagMatch)
@@ -124,6 +131,7 @@ export function parseHTML (html, options) {
           !conditionalComment.test(rest)
         ) {
           // < in plain text, be forgiving and treat it as text
+          // "<textaa.." 文本
           next = rest.indexOf('<', 1)
           if (next < 0) break
           textEnd += next
@@ -144,6 +152,7 @@ export function parseHTML (html, options) {
         options.chars(text, index - text.length, index)
       }
     } else {
+      // 处理 script | style | textarea 的 结束标签
       let endTagLength = 0
       const stackedTag = lastTag.toLowerCase()
       const reStackedTag = reCache[stackedTag] || (reCache[stackedTag] = new RegExp('([\\s\\S]*?)(</' + stackedTag + '[^>]*>)', 'i'))
@@ -177,6 +186,7 @@ export function parseHTML (html, options) {
   }
 
   // Clean up any remaining tags
+  // 结束标签
   parseEndTag()
 
   function advance (n) {
@@ -184,6 +194,7 @@ export function parseHTML (html, options) {
     html = html.substring(n)
   }
 
+  // 开始标签
   function parseStartTag () {
     const start = html.match(startTagOpen)
     if (start) {
@@ -198,7 +209,7 @@ export function parseHTML (html, options) {
         attr.start = index
         advance(attr[0].length)
         attr.end = index
-        match.attrs.push(attr)
+        match.attrs.push(attr)      // 属性数组
       }
       if (end) {
         match.unarySlash = end[1]
@@ -211,7 +222,7 @@ export function parseHTML (html, options) {
 
   function handleStartTag (match) {
     const tagName = match.tagName
-    const unarySlash = match.unarySlash
+    const unarySlash = match.unarySlash         // 自闭合标签
 
     if (expectHTML) {
       if (lastTag === 'p' && isNonPhrasingTag(tagName)) {
@@ -224,6 +235,8 @@ export function parseHTML (html, options) {
 
     const unary = isUnaryTag(tagName) || !!unarySlash
 
+    // arrs 数组的处理
+    // arrs = [{ name: attrName, value: attrVal, start, end }]
     const l = match.attrs.length
     const attrs = new Array(l)
     for (let i = 0; i < l; i++) {
@@ -242,11 +255,13 @@ export function parseHTML (html, options) {
       }
     }
 
+    // 非自闭合标签
     if (!unary) {
       stack.push({ tag: tagName, lowerCasedTag: tagName.toLowerCase(), attrs: attrs, start: match.start, end: match.end })
       lastTag = tagName
     }
 
+    // 传入的 start 方法
     if (options.start) {
       options.start(tagName, attrs, unary, match.start, match.end)
     }
@@ -261,6 +276,7 @@ export function parseHTML (html, options) {
     if (tagName) {
       lowerCasedTagName = tagName.toLowerCase()
       for (pos = stack.length - 1; pos >= 0; pos--) {
+        // 找到开始标签对应的结束标签
         if (stack[pos].lowerCasedTag === lowerCasedTagName) {
           break
         }
@@ -272,6 +288,7 @@ export function parseHTML (html, options) {
 
     if (pos >= 0) {
       // Close all the open elements, up the stack
+      // 异常情况 i > pos 没有提供闭合标签
       for (let i = stack.length - 1; i >= pos; i--) {
         if (process.env.NODE_ENV !== 'production' &&
           (i > pos || !tagName) &&
