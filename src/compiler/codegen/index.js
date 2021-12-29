@@ -126,7 +126,7 @@ export function genElement (el: ASTElement, state: CodegenState): string {
   }
 }
 
-// 处理静态节点，生成静态节点的渲染函数，将其放到 state.staticRenderFns 数组中，返回 _m(idx) 可执行函数
+// 处理静态节点，生成静态节点的渲染函数，将其放到 state.staticRenderFns 数组中，返回 _m(idx, true/'') 可执行函数
 // hoist static sub-trees out
 function genStatic (el: ASTElement, state: CodegenState): string {
   // 标记当前静态节点 已被处理，避免 额外递归

@@ -4,6 +4,11 @@ import { isObject, isDef, hasSymbol } from 'core/util/index'
 
 /**
  * Runtime helper for rendering v-for lists.
+ * 
+ * v-for
+ *   return _l(arr, function(val, key, idx) { return _c(tag, data, children) })
+ * 本质是一个 for 循环，为 可迭代对象中的每个元素执行一次 render 函数，生成一个 vnode，最终返回一个 vnode 数组
+ * 
  */
 export function renderList (
   val: any,

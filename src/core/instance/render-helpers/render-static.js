@@ -2,6 +2,10 @@
 
 /**
  * Runtime helper for rendering static trees.
+ * 
+ * return _m(idx, true/'')
+ *    idx 是当前静态节点的渲染函数在 staticRenderFns 数组中的下标
+ *    _m 就是 执行 staticRenderFns 数组中指定下标的元素(静态树的渲染函数)，得到静态树的 vnode
  */
 export function renderStatic (
   index: number,
@@ -20,6 +24,7 @@ export function renderStatic (
     null,
     this // for render fns generated for functional component templates
   )
+  // 静态标记
   markStatic(tree, `__static__${index}`, false)
   return tree
 }

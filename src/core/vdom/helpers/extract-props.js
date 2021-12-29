@@ -32,6 +32,8 @@ export function extractPropsFromVNodeData (
           key !== keyInLowerCase &&
           attrs && hasOwn(attrs, keyInLowerCase)
         ) {
+          // props 定义的时候使用 小驼峰命名 如 testProps
+          // 在 HTML 中需要这样使用 <comp :test-props = '' />
           tip(
             `Prop "${keyInLowerCase}" is passed to component ` +
             `${formatComponentName(tag || Ctor)}, but the declared prop name is` +
@@ -42,12 +44,24 @@ export function extractPropsFromVNodeData (
           )
         }
       }
+      // 从组件的属性对象上获取组件 props 指定属性的值
       checkProp(res, props, key, altKey, true) ||
       checkProp(res, attrs, key, altKey, false)
     }
   }
   return res
 }
+
+/**
+ * <comp msg="hello" />
+ * key 就是 msg
+ * props: {
+ *   msg: {
+ *     type: 'String',
+ *     default: 'hello'
+ *   }
+ * }
+ */
 
 function checkProp (
   res: Object,
@@ -58,6 +72,7 @@ function checkProp (
 ): boolean {
   if (isDef(hash)) {
     if (hasOwn(hash, key)) {
+      // res[msg] = data.attrs[msg] | data.props[msg]
       res[key] = hash[key]
       if (!preserve) {
         delete hash[key]

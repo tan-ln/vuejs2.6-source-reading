@@ -91,6 +91,12 @@ export function FunctionalRenderContext (
 
 installRenderHelpers(FunctionalRenderContext.prototype)
 
+/**
+ * 解析 props 对象
+ * 生成函数式组件的渲染上下文
+ * 执行组件的 render 函数，生成 vnode 并返回
+ */
+
 export function createFunctionalComponent (
   Ctor: Class<Component>,
   propsData: ?Object,
@@ -100,16 +106,21 @@ export function createFunctionalComponent (
 ): VNode | Array<VNode> | void {
   const options = Ctor.options
   const props = {}
+  // 从 组件配置项上获取 props
   const propOptions = options.props
   if (isDef(propOptions)) {
+    // 说明函数式组件 显式 提供了 props 配置
     for (const key in propOptions) {
       props[key] = validateProp(key, propOptions, propsData || emptyObject)
     }
   } else {
+    // 没有提供 props 配置
     if (isDef(data.attrs)) mergeProps(props, data.attrs)
     if (isDef(data.props)) mergeProps(props, data.props)
   }
 
+  // 生成函数式组件的渲染上下文 context
+  // 函数式组件的所有属性都通过 context 传递
   const renderContext = new FunctionalRenderContext(
     data,
     props,
@@ -118,8 +129,10 @@ export function createFunctionalComponent (
     Ctor
   )
 
+  // 执行 render 生成 vnode
   const vnode = options.render.call(null, renderContext._c, renderContext)
 
+  // 返回最后生成的 vnode
   if (vnode instanceof VNode) {
     return cloneAndMarkFunctionalResult(vnode, data, renderContext.parent, options, renderContext)
   } else if (Array.isArray(vnode)) {

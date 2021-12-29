@@ -52,22 +52,26 @@ export function _createElement (
   normalizationType?: number
 ): VNode | Array<VNode> {
   if (isDef(data) && isDef((data: any).__ob__)) {
+    // 属性不能是 响应式对象
     process.env.NODE_ENV !== 'production' && warn(
       `Avoid using observed data object as vnode data: ${JSON.stringify(data)}\n` +
       'Always create fresh vnode data objects in each render!',
       context
     )
+    // 如果是响应式对象 则返回一个空节点 的 vnode
     return createEmptyVNode()
   }
   // object syntax in v-bind
   if (isDef(data) && isDef(data.is)) {
     tag = data.is
   }
+  // 标签名不存在，动态组件 <component :is="false" />
   if (!tag) {
     // in case of component :is set to falsy value
     return createEmptyVNode()
   }
   // warn against non-primitive key
+  // 唯一键 key 必须是原始值
   if (process.env.NODE_ENV !== 'production' &&
     isDef(data) && isDef(data.key) && !isPrimitive(data.key)
   ) {
@@ -80,6 +84,7 @@ export function _createElement (
     }
   }
   // support single function children as default scoped slot
+  // 子节点只有一个，并且是一个函数，就当作默认插槽处理
   if (Array.isArray(children) &&
     typeof children[0] === 'function'
   ) {
@@ -92,26 +97,34 @@ export function _createElement (
   } else if (normalizationType === SIMPLE_NORMALIZE) {
     children = simpleNormalizeChildren(children)
   }
+
+  // 重点
   let vnode, ns
   if (typeof tag === 'string') {
     let Ctor
+    // 命名空间
     ns = (context.$vnode && context.$vnode.ns) || config.getTagNamespace(tag)
     if (config.isReservedTag(tag)) {
       // platform built-in elements
+      // 平台保留标签 原生标签
       if (process.env.NODE_ENV !== 'production' && isDef(data) && isDef(data.nativeOn) && data.tag !== 'component') {
         warn(
           `The .native modifier for v-on is only valid on components but it was used on <${tag}>.`,
           context
         )
       }
+      // 直接实例化一个 vnode
       vnode = new VNode(
         config.parsePlatformTagName(tag), data, children,
         undefined, undefined, context
       )
     } else if ((!data || !data.pre) && isDef(Ctor = resolveAsset(context.$options, 'components', tag))) {
       // component
+      // this.$options.components 对象中获取 构造函数，赋值给 Ctor
       vnode = createComponent(Ctor, data, context, children, tag)
     } else {
+      // 未知标签
+      // 生成 vnode 在运行时再做检查，那时可能会分配合适的命名空间
       // unknown or unlisted namespaced elements
       // check at runtime because it may get assigned a namespace when its
       // parent normalizes children
@@ -122,6 +135,7 @@ export function _createElement (
     }
   } else {
     // direct component options / constructor
+    // 标签不是字符串，而是一个 组件配置对象 或者 组件的构造函数
     vnode = createComponent(tag, data, context, children)
   }
   if (Array.isArray(vnode)) {
