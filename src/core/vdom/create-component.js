@@ -90,12 +90,22 @@ const componentVNodeHooks = {
     }
   },
 
+  /**
+   * 销毁组件
+   *    1. 如果组件被 keep-alive 组件包裹，则组件失活，不销毁组件实例，从而缓存组件的状态
+   *    2. 如果组件未被 keep-alive 包裹，则直接调用实例的 $destroy 方法销毁组件
+   */
   destroy (vnode: MountedComponentVNode) {
+    // 从 vnode 获取组件实例
     const { componentInstance } = vnode
+    // 如果组件没有被销毁
     if (!componentInstance._isDestroyed) {
+      // 没有被 keep-alive 包裹
       if (!vnode.data.keepAlive) {
+        // 则直接调用 $destroy() 方法销毁组件
         componentInstance.$destroy()
       } else {
+        // 被 keep-alive 包裹的组件，让组件失活，不销毁组件，从而缓存组件状态
         deactivateChildComponent(componentInstance, true /* direct */)
       }
     }
